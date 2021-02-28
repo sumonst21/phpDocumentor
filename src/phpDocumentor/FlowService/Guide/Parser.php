@@ -11,16 +11,18 @@ declare(strict_types=1);
  * @link https://phpdoc.org
  */
 
-namespace phpDocumentor\Pipeline\Stage\Parser;
+namespace phpDocumentor\FlowService\Guide;
 
 use League\Tactician\CommandBus;
+use phpDocumentor\Descriptor\DocumentationSetDescriptor;
 use phpDocumentor\Descriptor\GuideSetDescriptor;
+use phpDocumentor\FlowService\FlowService;
 use phpDocumentor\FileSystem\FlySystemFactory;
 use phpDocumentor\Guides\ParseDirectoryCommand;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-final class ParseGuides
+final class Parser implements FlowService
 {
     /** @var CommandBus */
     private $commandBus;
@@ -38,40 +40,21 @@ final class ParseGuides
         $this->flySystemFactory = $flySystemFactory;
     }
 
-    public function __invoke(Payload $payload): Payload
+    public function operate(DocumentationSetDescriptor $documentationSet): void
     {
-        if (($payload->getConfig()['phpdocumentor']['settings']['guides.enabled'] ?? false) !== true) {
-            return $payload;
-        }
-
-        /*
-         * For now settings of the first guides are used.
-         * We need to change this later, when we accept more different things
-         */
-        $version = $payload->getBuilder()->getProjectDescriptor()->getVersions()->get(0);
-        $guideDocumentationSet = null;
-        foreach ($version->getDocumentationSets() as $set) {
-            if ($set instanceof GuideSetDescriptor) {
-                $guideDocumentationSet = $set;
-                break;
-            }
-        }
-
-        if ($guideDocumentationSet === null) {
-            return $payload;
+        if (!$documentationSet instanceof GuideSetDescriptor) {
+            throw new \InvalidArgumentException('Invalid documentation set');
         }
 
         $this->log('Parsing guides', LogLevel::NOTICE);
 
-        $dsn = $guideDocumentationSet->getSource()->dsn();
+        $dsn = $documentationSet->getSource()->dsn();
         $origin = $this->flySystemFactory->create($dsn);
-        $sourcePath = (string) ($guideDocumentationSet->getSource()->paths()[0] ?? '');
+        $sourcePath = (string) ($documentationSet->getSource()->paths()[0] ?? '');
 
         $this->commandBus->handle(
-            new ParseDirectoryCommand($guideDocumentationSet, $origin, $sourcePath)
+            new ParseDirectoryCommand($documentationSet, $origin, $sourcePath)
         );
-
-        return $payload;
     }
 
     /**
@@ -80,7 +63,7 @@ final class ParseGuides
      * @param string $priority The logging priority as declared in the LogLevel PSR-3 class.
      * @param string[] $parameters
      */
-    private function log(string $message, string $priority = LogLevel::INFO, array $parameters = []): void
+    private function log(string $message, string $priority = LogLevel::INFO, array $parameters = []) : void
     {
         $this->logger->log($priority, $message, $parameters);
     }
