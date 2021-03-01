@@ -11,16 +11,17 @@ declare(strict_types=1);
  * @link https://phpdoc.org
  */
 
-namespace phpDocumentor\Transformer\Writer;
+namespace phpDocumentor\FlowService\Guide;
 
 use League\Tactician\CommandBus;
+use phpDocumentor\Descriptor\DocumentationSetDescriptor;
 use phpDocumentor\Descriptor\GuideSetDescriptor;
 use phpDocumentor\Descriptor\ProjectDescriptor;
-use phpDocumentor\Descriptor\VersionDescriptor;
 use phpDocumentor\Dsn;
+use phpDocumentor\FlowService\FlowService;
 use phpDocumentor\Guides\RenderCommand;
 use phpDocumentor\Guides\Renderer;
-use phpDocumentor\Parser\FlySystemFactory;
+use phpDocumentor\FileSystem\FlySystemFactory;
 use phpDocumentor\Transformer\Transformation;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
@@ -30,7 +31,7 @@ use function sprintf;
 /**
  * @experimental this feature is in alpha stages and can have unresolved issues or missing features.
  */
-final class RenderGuide extends WriterAbstract implements ProjectDescriptor\WithCustomSettings
+final class RenderGuide implements FlowService, ProjectDescriptor\WithCustomSettings
 {
     public const FEATURE_FLAG = 'guides.enabled';
 
@@ -63,27 +64,13 @@ final class RenderGuide extends WriterAbstract implements ProjectDescriptor\With
         return 'RenderGuide';
     }
 
-    public function transform(ProjectDescriptor $project, Transformation $transformation): void
+    public function operate(DocumentationSetDescriptor $documentationSet): void
     {
-        // Feature flag: Guides are disabled by default since this is an experimental feature
-        if (!($project->getSettings()->getCustom()[self::FEATURE_FLAG])) {
-            return;
-        }
-
         $this->logger->warning(
             'Generating guides is experimental, no BC guarantees are given, use at your own risk'
         );
 
-        /** @var VersionDescriptor $version */
-        foreach ($project->getVersions() as $version) {
-            foreach ($version->getDocumentationSets() as $documentationSet) {
-                if (!$documentationSet instanceof GuideSetDescriptor) {
-                    continue;
-                }
-
-                $this->renderDocumentationSet($documentationSet, $project, $transformation);
-            }
-        }
+        $this->renderDocumentationSet($documentationSet, $project, $transformation);
     }
 
     public function getDefaultSettings(): array
