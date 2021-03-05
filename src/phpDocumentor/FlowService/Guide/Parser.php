@@ -16,13 +16,13 @@ namespace phpDocumentor\FlowService\Guide;
 use League\Tactician\CommandBus;
 use phpDocumentor\Descriptor\DocumentationSetDescriptor;
 use phpDocumentor\Descriptor\GuideSetDescriptor;
-use phpDocumentor\FlowService\FlowService;
+use phpDocumentor\FlowService\Parser as ParserInterface;
 use phpDocumentor\FileSystem\FlySystemFactory;
 use phpDocumentor\Guides\ParseDirectoryCommand;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-final class Parser implements FlowService
+final class Parser implements ParserInterface
 {
     /** @var CommandBus */
     private $commandBus;
