@@ -17,7 +17,7 @@ use phpDocumentor\Descriptor\DocumentationSetDescriptor;
 use phpDocumentor\Descriptor\ProjectDescriptor;
 use phpDocumentor\Guides\Renderer\TemplateRenderer;
 use phpDocumentor\Guides\Twig\AssetsExtension;
-use phpDocumentor\Transformer\Transformation;
+use phpDocumentor\Transformer\Template;
 use phpDocumentor\Transformer\Writer\Graph\PlantumlRenderer;
 use phpDocumentor\Transformer\Writer\Twig\EnvironmentFactory;
 use Psr\Log\LoggerInterface;
@@ -55,11 +55,11 @@ class Renderer
     public function initialize(
         ProjectDescriptor $project,
         DocumentationSetDescriptor $documentationSet,
-        Transformation $transformation
+        Template $template
     ): void {
         $targetDirectory = $documentationSet->getOutputLocation();
 
-        $this->twig = $this->twigFactory->create($project, $transformation->template());
+        $this->twig = $this->twigFactory->create($project, $template);
         $this->twig->addExtension(new AssetsExtension($this->logger, $this->plantumlRenderer));
         $this->twig->addGlobal('project', $project);
         $this->twig->addGlobal('usesNamespaces', count($project->getNamespace()->getChildren()) > 0);
@@ -69,7 +69,7 @@ class Renderer
 
         // pre-set the global variable so that we can update it later
         $this->twig->addGlobal('env', null);
-        $this->twig->addGlobal('destination', $transformation->getTransformer()->destination());
+        //$this->twig->addGlobal('destination', $transformation->getTransformer()->destination());
 
         $this->templateRenderer = new TemplateRenderer($this->twig, 'guides');
     }

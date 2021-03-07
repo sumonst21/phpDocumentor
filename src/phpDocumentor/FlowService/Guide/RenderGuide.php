@@ -15,14 +15,13 @@ namespace phpDocumentor\FlowService\Guide;
 
 use League\Tactician\CommandBus;
 use phpDocumentor\Descriptor\DocumentationSetDescriptor;
-use phpDocumentor\Descriptor\GuideSetDescriptor;
 use phpDocumentor\Descriptor\ProjectDescriptor;
 use phpDocumentor\Dsn;
-use phpDocumentor\FlowService\FlowService;
+use phpDocumentor\FlowService\Transformer;
 use phpDocumentor\Guides\RenderCommand;
 use phpDocumentor\Guides\Renderer;
+use phpDocumentor\Transformer\Template;
 use phpDocumentor\FileSystem\FlySystemFactory;
-use phpDocumentor\Transformer\Transformation;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
@@ -31,7 +30,7 @@ use function sprintf;
 /**
  * @experimental this feature is in alpha stages and can have unresolved issues or missing features.
  */
-final class RenderGuide implements FlowService, ProjectDescriptor\WithCustomSettings
+final class RenderGuide implements Transformer, ProjectDescriptor\WithCustomSettings
 {
     public const FEATURE_FLAG = 'guides.enabled';
 
@@ -64,35 +63,22 @@ final class RenderGuide implements FlowService, ProjectDescriptor\WithCustomSett
         return 'RenderGuide';
     }
 
-    public function operate(DocumentationSetDescriptor $documentationSet): void
+    public function execute(ProjectDescriptor $project, DocumentationSetDescriptor $documentationSet, Template $template): void
     {
         $this->logger->warning(
             'Generating guides is experimental, no BC guarantees are given, use at your own risk'
         );
 
-        $this->renderDocumentationSet($documentationSet, $project, $transformation);
-    }
-
-    public function getDefaultSettings(): array
-    {
-        return [self::FEATURE_FLAG => false];
-    }
-
-    private function renderDocumentationSet(
-        GuideSetDescriptor $documentationSet,
-        ProjectDescriptor $project,
-        Transformation $transformation
-    ): void {
         $dsn = $documentationSet->getSource()->dsn();
         $stopwatch = $this->startRenderingSetMessage($dsn);
 
-        $this->renderer->initialize($project, $documentationSet, $transformation);
+        $this->renderer->initialize($project, $documentationSet, $template);
 
         $this->commandBus->handle(
             new RenderCommand(
                 $documentationSet,
                 $this->flySystemFactory->create($dsn),
-                $transformation->getTransformer()->destination()
+                $this->flySystemFactory->create(Dsn::createFromString($documentationSet->getOutputLocation()))
             )
         );
 
@@ -119,5 +105,12 @@ final class RenderGuide implements FlowService, ProjectDescriptor\WithCustomSett
                 $stopwatchEvent->getMemory() / 1024 / 1024
             )
         );
+    }
+
+    public function getDefaultSettings(): array
+    {
+        return [
+              self::FEATURE_FLAG => false,
+        ];
     }
 }
