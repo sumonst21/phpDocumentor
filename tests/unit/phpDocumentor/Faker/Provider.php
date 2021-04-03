@@ -15,7 +15,9 @@ use phpDocumentor\Configuration\SymfonyConfigFactory;
 use phpDocumentor\Configuration\VersionSpecification;
 use phpDocumentor\Descriptor\ApiSetDescriptor;
 use phpDocumentor\Descriptor\ClassDescriptor;
+use phpDocumentor\Descriptor\Collection as DescriptorCollection;
 use phpDocumentor\Descriptor\ConstantDescriptor;
+use phpDocumentor\Descriptor\DocumentationSetDescriptor;
 use phpDocumentor\Descriptor\FileDescriptor;
 use phpDocumentor\Descriptor\FunctionDescriptor;
 use phpDocumentor\Descriptor\InterfaceDescriptor;
@@ -31,6 +33,7 @@ use phpDocumentor\Descriptor\FileDescriptor;
 use phpDocumentor\Descriptor\GuideSetDescriptor;
 use phpDocumentor\Descriptor\NamespaceDescriptor;
 use phpDocumentor\Descriptor\ProjectDescriptor;
+use phpDocumentor\Descriptor\VersionDescriptor;
 use phpDocumentor\Descriptor\VersionDescriptor;
 use phpDocumentor\Dsn;
 use phpDocumentor\FileSystem\FlySystemFactory;
@@ -152,6 +155,14 @@ final class Provider extends Base
             ),
             ],
             []
+        );
+    }
+
+    public function versionDescriptor(): VersionDescriptor
+    {
+        return new VersionDescriptor(
+            $this->generator->numerify('v#.#.#'),
+            DescriptorCollection::fromClassString(DocumentationSetDescriptor::class)
         );
     }
 
