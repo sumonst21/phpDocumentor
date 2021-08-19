@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace phpDocumentor\Compiler\Pass;
 
-use phpDocumentor\Descriptor\ClassDescriptor;
 use phpDocumentor\Descriptor\Collection;
 use phpDocumentor\Descriptor\DescriptorAbstract;
 use phpDocumentor\Descriptor\DocBlock\DescriptionDescriptor;
@@ -48,7 +47,7 @@ final class MarkerFromTagsExtractorTest extends TestCase
      */
     public function testDescriptionReturnsCorrectString(): void
     {
-       self::assertSame('Collect all markers embedded in tags', $this->fixture->getDescription());
+        self::assertSame('Collect all markers embedded in tags', $this->fixture->getDescription());
     }
 
     /**
@@ -72,18 +71,18 @@ final class MarkerFromTagsExtractorTest extends TestCase
 
         $this->fixture->execute($this->project);
 
-       self::assertCount(2, $fileDescriptor->getTags()->get('todo'));
-       self::assertCount(1, $classDescriptor->getTags()->get('todo'));
-       self::assertCount(3, $fileDescriptor->getMarkers());
-       self::assertSame(
+        self::assertCount(2, $fileDescriptor->getTags()->get('todo'));
+        self::assertCount(1, $classDescriptor->getTags()->get('todo'));
+        self::assertCount(3, $fileDescriptor->getMarkers());
+        self::assertSame(
             ['type' => 'TODO', 'message' => '123', 'line' => 10],
             $fileDescriptor->getMarkers()->get(0)
         );
-       self::assertSame(
+        self::assertSame(
             ['type' => 'TODO', 'message' => '456', 'line' => 10],
             $fileDescriptor->getMarkers()->get(1)
         );
-       self::assertSame(
+        self::assertSame(
             ['type' => 'TODO', 'message' => '789', 'line' => 20],
             $fileDescriptor->getMarkers()->get(2)
         );
