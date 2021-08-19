@@ -26,17 +26,8 @@ use phpDocumentor\Descriptor\NamespaceDescriptor;
 use phpDocumentor\Descriptor\PropertyDescriptor;
 use phpDocumentor\Descriptor\TraitDescriptor;
 use phpDocumentor\FileSystem\FlySystemFactory;
-use phpDocumentor\Descriptor\ApiSetDescriptor;
-use phpDocumentor\Descriptor\Collection as DescriptorCollection;
-use phpDocumentor\Descriptor\DocumentationSetDescriptor;
-use phpDocumentor\Descriptor\FileDescriptor;
-use phpDocumentor\Descriptor\GuideSetDescriptor;
-use phpDocumentor\Descriptor\NamespaceDescriptor;
-use phpDocumentor\Descriptor\ProjectDescriptor;
-use phpDocumentor\Descriptor\VersionDescriptor;
 use phpDocumentor\Descriptor\VersionDescriptor;
 use phpDocumentor\Dsn;
-use phpDocumentor\FileSystem\FlySystemFactory;
 use phpDocumentor\Path;
 use phpDocumentor\Reflection\Fqsen;
 use phpDocumentor\Reflection\Php\Factory\ContextStack;
@@ -47,12 +38,11 @@ use phpDocumentor\Transformer\Transformer;
 use phpDocumentor\Transformer\Writer\Collection;
 use Psr\Log\NullLogger;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use function array_pop;
-use function implode;
-use const DIRECTORY_SEPARATOR;
 
 use function array_pop;
 use function implode;
+
+use const DIRECTORY_SEPARATOR;
 
 final class Provider extends Base
 {
