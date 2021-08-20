@@ -153,7 +153,7 @@ final class Provider extends Base
     {
         return new VersionDescriptor(
             $this->generator->numerify('v#.#.#'),
-            DescriptorCollection::fromClassString(DocumentationSetDescriptor::class)
+            DescriptorCollection::fromClassString(DocumentationSetDescriptor::class), DescriptorCollection::fromClassString(DocumentationSetDescriptor::class)
         );
     }
 
