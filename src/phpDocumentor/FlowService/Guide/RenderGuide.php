@@ -17,11 +17,11 @@ use League\Tactician\CommandBus;
 use phpDocumentor\Descriptor\DocumentationSetDescriptor;
 use phpDocumentor\Descriptor\ProjectDescriptor;
 use phpDocumentor\Dsn;
+use phpDocumentor\FileSystem\FileSystemFactory;
 use phpDocumentor\FlowService\Transformer;
 use phpDocumentor\Guides\RenderCommand;
 use phpDocumentor\Guides\Renderer;
 use phpDocumentor\Transformer\Template;
-use phpDocumentor\FileSystem\FlySystemFactory;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Stopwatch\Stopwatch;
 
@@ -43,24 +43,15 @@ final class RenderGuide implements Transformer, ProjectDescriptor\WithCustomSett
     /** @var Renderer */
     private $renderer;
 
-    /** @var FlySystemFactory */
-    private $flySystemFactory;
+    /** @var FileSystemFactory */
+    private $fileSystems;
 
-    public function __construct(
-        Renderer $renderer,
-        LoggerInterface $logger,
-        CommandBus $commandBus,
-        FlySystemFactory $flySystemFactory
-    ) {
+    public function __construct(Renderer $renderer, LoggerInterface $logger, CommandBus $commandBus, FileSystemFactory $fileSystems)
+    {
         $this->logger = $logger;
         $this->commandBus = $commandBus;
         $this->renderer = $renderer;
-        $this->flySystemFactory = $flySystemFactory;
-    }
-
-    public function getName(): string
-    {
-        return 'RenderGuide';
+        $this->fileSystems = $fileSystems;
     }
 
     public function execute(ProjectDescriptor $project, DocumentationSetDescriptor $documentationSet, Template $template): void
@@ -77,15 +68,20 @@ final class RenderGuide implements Transformer, ProjectDescriptor\WithCustomSett
         $this->commandBus->handle(
             new RenderCommand(
                 $documentationSet,
-                $this->flySystemFactory->create($dsn),
-                $this->flySystemFactory->create(Dsn::createFromString($documentationSet->getOutputLocation()))
+                $this->fileSystems->create($dsn),
+                $this->fileSystems->createDestination($documentationSet)
             )
         );
 
         $this->completedRenderingSetMessage($stopwatch, $dsn);
     }
 
-    private function startRenderingSetMessage(Dsn $dsn): Stopwatch
+    public function getDefaultSettings() : array
+    {
+        return [self::FEATURE_FLAG => false];
+    }
+
+    private function startRenderingSetMessage(Dsn $dsn) : Stopwatch
     {
         $stopwatch = new Stopwatch();
         $stopwatch->start('guide');
@@ -94,7 +90,7 @@ final class RenderGuide implements Transformer, ProjectDescriptor\WithCustomSett
         return $stopwatch;
     }
 
-    private function completedRenderingSetMessage(Stopwatch $stopwatch, Dsn $dsn): void
+    private function completedRenderingSetMessage(Stopwatch $stopwatch, Dsn $dsn) : void
     {
         $stopwatchEvent = $stopwatch->stop('guide');
         $this->logger->info(
@@ -105,12 +101,5 @@ final class RenderGuide implements Transformer, ProjectDescriptor\WithCustomSett
                 $stopwatchEvent->getMemory() / 1024 / 1024
             )
         );
-    }
-
-    public function getDefaultSettings(): array
-    {
-        return [
-              self::FEATURE_FLAG => false,
-        ];
     }
 }
