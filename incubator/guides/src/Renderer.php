@@ -60,8 +60,8 @@ class Renderer
         $this->twig = $this->twigFactory->create($project, $template);
         $this->twig->addExtension(new AssetsExtension($this->logger, $this->plantumlRenderer));
         $this->twig->addGlobal('project', $project);
-        $this->twig->addGlobal('usesNamespaces', count($project->getNamespace()->getChildren()) > 0);
-        $this->twig->addGlobal('usesPackages', count($project->getPackage()->getChildren()) > 0);
+//        $this->twig->addGlobal('usesNamespaces', count($project->getNamespace()->getChildren()) > 0);
+//        $this->twig->addGlobal('usesPackages', count($project->getPackage()->getChildren()) > 0);
         $this->twig->addGlobal('documentationSet', $documentationSet);
         $this->twig->addGlobal('destinationPath', $targetDirectory);
 
